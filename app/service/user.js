@@ -86,7 +86,7 @@ class UserService extends Service{
 
     async findByIdAndUpdate(id, values){
         // new:true，返回修改后的数据，否则返回修改前的数据。
-        return this.ctx.model.User.findByIdAndUpdate(id, values, {new: true})
+        return this.ctx.model.User.findByIdAndUpdate(id, values, {new: true}).populate('role');
     }
 
     modifyAttrs(data){
