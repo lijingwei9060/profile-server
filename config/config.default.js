@@ -25,7 +25,7 @@ module.exports = appInfo => {
       csrf: {
         enable: false,
       },
-      domainWhiteList: ['http://localhost:8000','http://114.67.22.39','http://114.67.22.39:8000','https://114.67.22.39','https://114.67.22.39:8000']
+      domainWhiteList: ['http://127.0.0.1:8000','http://114.67.22.39','http://114.67.22.39:8000','https://114.67.22.39','https://114.67.22.39:8000']
       
     },
     cors: {
@@ -37,7 +37,7 @@ module.exports = appInfo => {
       saltRounds: 10 // default 10
     },
     mongoose: {
-      url: `mongodb://${process.env.DATABASE_HOST || 'localhost'}:27017/profile`,
+      url: `mongodb://${process.env.DATABASE_HOST || '127.0.0.1'}:27017/profile`,
       options: {
         autoReconnect: true,
         reconnectTries: Number.MAX_VALUE,
