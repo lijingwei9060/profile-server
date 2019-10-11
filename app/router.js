@@ -30,4 +30,28 @@ module.exports = app => {
   router.get('/api/user',  app.jwt, controller.user.index)
   router.delete('/api/user',app.jwt,  controller.user.removes)
   // router.resources('user', '/api/user', controller.user)
+  // customer
+  router.post('/api/customer',  app.jwt, controller.customer.create)
+  router.delete('/api/customer/:id',  app.jwt, controller.customer.destroy)
+  router.put('/api/customer/:id',  app.jwt, controller.customer.update)
+  router.get('/api/customer/:id',  app.jwt, controller.customer.show)
+  router.get('/api/customer',  app.jwt, controller.customer.index)
+  router.delete('/api/customer',app.jwt,  controller.customer.removes)
+    
+  // contact
+  router.post('/api/contact',  app.jwt, controller.contact.create)
+  router.delete('/api/contact/:id',  app.jwt, controller.contact.destroy)
+  router.put('/api/contact/:id',  app.jwt, controller.contact.update)
+  router.get('/api/contact/:id',  app.jwt, controller.contact.show)
+  router.get('/api/contact',  app.jwt, controller.contact.index)
+  router.delete('/api/contact',app.jwt,  controller.contact.removes)
+
+  // order
+  router.post('/api/order',  app.jwt, controller.order.create)
+  router.delete('/api/order/:id',  app.jwt, controller.order.destroy)
+  router.put('/api/order/:id',  app.jwt, controller.order.update)
+  router.get('/api/order/:id',  app.jwt, controller.order.show)
+  router.get('/api/order',  app.jwt, controller.order.index)
+  router.delete('/api/order',app.jwt,  controller.order.removes)
+
 };

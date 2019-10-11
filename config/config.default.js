@@ -30,7 +30,6 @@ module.exports = appInfo => {
     },
     cors: {
       credentials: true,
-      
       allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
     },
     bcrypt: {

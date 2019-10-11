@@ -23,7 +23,7 @@ class RoleService extends Service {
         if(!role){
             ctx.throw(404, 'role not found');
         }
-        const data = await ctx.model.Role.findByIdAndUpdate(_id, payload);
+        const data = await ctx.model.Role.findByIdAndUpdate(_id, payload, {new: true});
         return ctx.service.role.modifyAttrs(data);
     }
 

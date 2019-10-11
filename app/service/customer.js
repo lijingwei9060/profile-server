@@ -7,7 +7,8 @@ class CustomerService extends Service{
         // ctx.state.user 可以提取到JWT编码的data
         const _id = ctx.state.user.data._id;
         payload.createdBy = _id;
-        const data = await ctx.model.Customer.create(payload);
+        const doc = await ctx.model.Customer.create(payload);
+        const data = await doc.populate('createdBy').execPopulate();
         return service.customer.modifyAttrs(data);
     }
     
@@ -29,7 +30,7 @@ class CustomerService extends Service{
             ctx.throw(404, 'customer not found');
         }
 
-        const data = await  ctx.model.Customer.findByIdAndUpdate(_id, payload);
+        const data = await  service.customer.findByIdAndUpdate(_id, payload);
         return service.customer.modifyAttrs(data);
     }
 
@@ -38,7 +39,7 @@ class CustomerService extends Service{
         if(!customer){
             this.ctx.throw(404, 'customer not found')
         }
-        const res = await this.ctx.model.Customer.findById(_id).populate('createdBy').populate('sales');
+        const res = await this.ctx.model.Customer.findById(_id).populate('createdBy');
         return this.ctx.service.customer.modifyAttrs(res);
     }
 
@@ -49,18 +50,18 @@ class CustomerService extends Service{
         let skip = ((Number(currentPage)) - 1) * Number(pageSize || 10)
         if(isPaging) {
           if(search) {
-            res = await this.ctx.model.Customer.find({name: { $regex: search } }).populate('createdBy').populate('sales').skip(skip).limit(Number(pageSize)).sort({ createdAt: -1 }).exec()
+            res = await this.ctx.model.Customer.find({name: { $regex: search } }).populate('createdBy').skip(skip).limit(Number(pageSize)).sort({ createdAt: -1 }).exec()
             count = res.length
           } else {
-            res = await this.ctx.model.Customer.find({}).populate('createdBy').populate('sales').skip(skip).limit(Number(pageSize)).sort({ createdAt: -1 }).exec()
+            res = await this.ctx.model.Customer.find({}).populate('createdBy').skip(skip).limit(Number(pageSize)).sort({ createdAt: -1 }).exec()
             count = await this.ctx.model.Customer.count({}).exec()
           }
         } else {
           if(search) {
-            res = await this.ctx.model.Customer.find({name: { $regex: search } }).populate('createdBy').populate('sales').sort({ createdAt: -1 }).exec()
+            res = await this.ctx.model.Customer.find({name: { $regex: search } }).populate('createdBy').sort({ createdAt: -1 }).exec()
             count = res.length
           } else {
-            res = await this.ctx.model.Customer.find({}).populate('createdBy').populate('sales').sort({ createdAt: -1 }).exec()
+            res = await this.ctx.model.Customer.find({}).populate('createdBy').sort({ createdAt: -1 }).exec()
             count = await this.ctx.model.Customer.count({}).exec()
           }
         }
@@ -77,36 +78,27 @@ class CustomerService extends Service{
     }
 
     async findByIdAndUpdate(id, values){
-        return this.ctx.model.Customer.findByIdAndUpdate(id, values)
+        return this.ctx.model.Customer.findByIdAndUpdate(id, values).populate('createdBy');
     }
 
     modifyAttrs(data){
         if ( Object.prototype.toString.call(data) === '[object Array]' ){
              let res = data.map((e,i) => {
                  const jo = Object.assign({}, e._doc)
-                 jo.key = i
                  //jo.createdAt = this.ctx.helper.formatTime(e.createdAt)
                  jo.id = e._id;
                  delete jo._id;
                  delete jo.__v;
 
                 // 替换createdBy
-                if (jo.createdBy ){
-                    let createdBy  = Object.assign({}, e._doc.createdBy._doc);
-                    createdBy.id = createdBy._id;
-                    delete createdBy._id;
-                    delete createdBy.__v;
-                    jo["createdBy"] = createdBy;
-                }
+                // if (jo.createdBy ){
+                //     let createdBy  = Object.assign({}, e._doc.createdBy._doc);
+                //     createdBy.id = createdBy._id;
+                //     delete createdBy._id;
+                //     delete createdBy.__v;
+                //     jo["createdBy"] = createdBy;
+                // }
 
-                // 替换sales
-                if (jo.sales ){
-                    let sales  = Object.assign({}, e._doc.sales._doc);
-                    sales.id = sales._id;
-                    delete sales._id;
-                    delete sales.__v;
-                    jo["sales"] = sales;
-                }
                 return jo;
              })
              return res;
@@ -115,14 +107,6 @@ class CustomerService extends Service{
              res.id = data._id;
              delete res._id;
              delete res.__v;
-             // 替换salse
-             if (res["sales"]){
-                let sales  = Object.assign({}, data._doc.sales._doc);
-                sales.id = sales._id;
-                delete sales._id;
-                delete sales.__v;
-                res["sales"] = sales;
-             }
 
              // 替换createdBy
              if (res["createdBy"]){

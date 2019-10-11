@@ -2,25 +2,27 @@
 
 const Controller = require('egg').Controller;
 
-class CustomerController extends Controller{
+class CrudController extends Controller{
     constructor(ctx){
         super(ctx);
-        this.createRule = {
-            name: { type: 'string', required: true, allowEmpty: false },
-            channel: { type: 'string', required: true, allowEmpty: false},
-        };
+        // TODO: 初始化createRule、updateRule
+        // TODO: 初始化serviceName
     }
 
     //创建
     async create(){
-        const { ctx, service } = this;
-        const errors =  ctx.app.validator.validate(this.createRule, ctx.request.body);
-        if(errors){
-            ctx.helper.failure({ctx, code:422, msg:errors});
+        const { ctx, service, serviceName} = this;
+        // 如果设置了createRule
+        if (this.createRule){
+            const errors =  ctx.app.validator.validate(this.createRule, ctx.request.body);
+            if(errors){
+                ctx.helper.failure({ctx, code:422, msg:errors});
+            }
         }
+        
         const payload = ctx.request.body || {};
         try{
-            const res = await service.customer.create(payload);
+            const res = await service[serviceName].create(payload);
             ctx.helper.success({ctx, res});
         }catch(err){
             //可能的错误：
@@ -29,24 +31,26 @@ class CustomerController extends Controller{
     }
     //删除
     async destroy(){
-        const { ctx, service } = this;
+        const { ctx, service, serviceName } = this;
         const { id } = ctx.params;
-        await service.customer.destroy(id);
+        await service[serviceName].destroy(id);
         ctx.helper.success({ctx});
     }
     
     //修改
     async update(){
-        const { ctx, service }= this;
-        const errors =  ctx.app.validator.validate(this.createRule, ctx.request.body);
-        if(errors){
-            ctx.helper.failure({ctx, code:422, msg:errors});
+        const { ctx, service, serviceName }= this;
+        if ( this.updateRule){
+            const errors =  ctx.app.validator.validate(this.createRule, ctx.request.body);
+            if(errors){
+                ctx.helper.failure({ctx, code:422, msg:errors});
+            }
         }
 
         const { id } = ctx.params;
         const payload = ctx.request.body || {};
         try{
-            const res = await service.customer.update(id, payload);
+            const res = await service[serviceName].update(id, payload);
             ctx.helper.success({ctx, res});
         }catch(err){
             //可能的错误：
@@ -56,11 +60,10 @@ class CustomerController extends Controller{
 
     //查询
     async show(){
-        const { ctx, service } = this;
+        const { ctx, service, serviceName } = this;
         const { id  } = ctx.params;
         try{
-
-            const res = await service.customer.show(id);
+            const res = await service[serviceName].show(id);
             ctx.helper.success({ctx, res}); 
         }catch(err){
             //可能的错误：
@@ -69,10 +72,10 @@ class CustomerController extends Controller{
     }
     //列表
     async index(){
-        const { ctx, service } = this;
+        const { ctx, service, serviceName } = this;
         const payload = ctx.query;
         try{
-            const res = await service.customer.index(payload);
+            const res = await service[serviceName].index(payload);
             ctx.helper.success({ctx, res});
         }catch(err){
             //可能的错误：
@@ -81,12 +84,12 @@ class CustomerController extends Controller{
     }
     //批量删除
     async removes(){
-        const { ctx, service } = this;
+        const { ctx, service, serviceName } = this;
         const { id } = ctx.request.body ;
         const payload = id.splict(',')||[];
-        const res = await service.customer.removes(payload);
+        const res = await service[serviceName].removes(payload);
         ctx.helper.success({ctx, res});
     }
 }
 
-module.exports = CustomerController;
+module.exports = CrudController;
