@@ -12,7 +12,7 @@ module.exports = app => {
         desc: { type: String, description: "描述" },
         createdBy: { type:mongoose.Schema.Types.ObjectId, ref: 'User' },
         createdAt: {type: Date, default: Date.now, description: "创建日期"},
-    });
+    }, {versionKey: false});
 
     return mongoose.model('Customer', CustomerSchema);
 }

@@ -9,6 +9,6 @@ module.exports = app => {
         createdAt: { type: Date, default: Date.now, description: "创建时间" },
         status: { type: Boolean, default: true, description: "appkey状态，false表示失效"},
         customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer", required: true, allowEmpty: false, description: "客户"},
-    });
+    }, {versionKey: false});
     return mongoose.model('AppKey', AppKeySchema);
 }

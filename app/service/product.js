@@ -7,10 +7,10 @@ class ProductService extends Service{
      * @param {*} payload 
      */
     async create(payload){
-        const _id = ctx.state.user.data._id;
+        const _id = this.ctx.state.user.data._id;
         payload.createdBy = _id;
-        let res = this.ctx.model.Product.create(payload);
-        const data = await res.populate('createdBy').execPopulate();
+        let res = await this.ctx.model.Product.create(payload);
+        const data = await res.populate('createdBy','realName').execPopulate();
         return this.modifyAttrs(data);
     }
 
@@ -36,8 +36,9 @@ class ProductService extends Service{
         if (!res){
             this.ctx.throw(404, 'product not found')
         }
-        const data = await this.ctx.model.Product.findByIdAndUpdate(_id, payload, {new: true});
-        return this.modifyAttrs(data);
+        let data = await this.ctx.model.Product.findByIdAndUpdate(_id, payload, {new: true});
+        let ret = await data.populate('createdBy','realName').execPopulate();
+        return this.modifyAttrs(ret);
     }
 
     /**
@@ -68,10 +69,7 @@ class ProductService extends Service{
         if (search) {
             searchParams['name'] = { $regex: search };
         }
-        if (customer){
-            searchParams['customer'] = customer;
-        }
-
+  
         const sortPramas = {};
         if (sorter){
             const s = sorter.split('_');
@@ -131,7 +129,7 @@ class ProductService extends Service{
      * @param {string} id 
      */
     async find(id){
-        return this.ctx.model.Product.findById(id).populate('createdBy');
+        return this.ctx.model.Product.findById(id).populate('createdBy','realName');
     }
 
     /**

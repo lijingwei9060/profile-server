@@ -1,60 +1,54 @@
 'use strict';
 const Service = require('egg').Service;
 
-class OrderService extends Service{
+class ProductItemService extends Service{
     /**
-     * 创建Order：订单
+     * 创建ProductItem：产品
      * @param {*} payload 
      */
     async create(payload){
         const _id = this.ctx.state.user.data._id;
         payload.createdBy = _id;
-        let res = await this.ctx.model.Order.create(payload);
-        let data = await res.populate('customer','name')
-                            .populate('sales','realName')
-                            .populate('createdBy','realName')
-                            .execPopulate();
+        let res = await this.ctx.model.ProductItem.create(payload);
+        let data  = await res.populate('createdBy').execPopulate();
         return this.modifyAttrs(data);
     }
 
     /**
      * 删除订单
-     * @param {string} _id 删除指定Order
+     * @param {string} _id 删除指定ProductItem
      */
     async destroy(_id){
         let res = await this.find(_id);
         if (!res){
-            this.ctx.throw(404, 'order not found')
+            this.ctx.throw(404, 'productItem not found')
         }
-        return await this.ctx.model.Order.findByIdAndRemove(_id);
+        return await this.ctx.model.ProductItem.findByIdAndRemove(_id);
     }
 
     /**
      * 更新订单
-     * @param {string} _id 订单ID
-     * @param {*} payload 订单属性
+     * @param {string} _id 商品ID
+     * @param {*} payload 商品属性
      */
     async update(_id, payload){
         let res = await this.find(_id);
         if (!res){
-            this.ctx.throw(404, 'order not found')
+            this.ctx.throw(404, 'productItem not found')
         }
-        let data = await this.ctx.model.Order.findByIdAndUpdate(_id, payload, {new: true});
-        let ret = await data.populate('customer','name')
-                            .populate('sales','realName')
-                            .populate('createdBy','realName')
-                            .execPopulate();
+        let data = await this.ctx.model.ProductItem.findByIdAndUpdate(_id, payload, {new: true});
+        const ret = await data.populate('createdBy').execPopulate();
         return this.modifyAttrs(ret);
     }
 
     /**
      * 查询订单
-     * @param {string} _id 显示Order
+     * @param {string} _id 显示ProductItem
      */
     async show(_id){
         let res = await this.find(_id);
         if (!res){
-            this.ctx.throw(404, 'order not found')
+            this.ctx.throw(404, 'productItem not found')
         }
         return this.modifyAttrs(res);
     }
@@ -73,9 +67,6 @@ class OrderService extends Service{
         const searchParams = {};
         if (search) {
             searchParams['name'] = { $regex: search };
-        }
-        if (customer){
-            searchParams['customer'] = customer;
         }
 
         const sortPramas = {};
@@ -96,35 +87,27 @@ class OrderService extends Service{
 
         if(isPaging) {
           if(Object.keys(searchParams).length > 0) {
-            res = await this.ctx.model.Order.find(searchParams)
-                .populate('customer','name')
-                .populate('sales','realName')
+            res = await this.ctx.model.ProductItem.find(searchParams)
                 .populate('createdBy','realName')
                 .skip(skip).limit(Number(pageSize)).sort(sortPramas).exec();
             count = res.length
           } else {
-            res = await this.ctx.model.Order.find({})
-                .populate('customer','name')
-                .populate('sales','realName')
+            res = await this.ctx.model.ProductItem.find({})
                 .populate('createdBy','realName')
                 .skip(skip).limit(Number(pageSize)).sort(sortPramas).exec();
-            count = await this.ctx.model.Order.count({}).exec()
+            count = await this.ctx.model.ProductItem.count({}).exec()
           }
         } else {
           if(Object.keys(searchParams).length > 0) {
-            res = await this.ctx.model.Order.find(searchParams)
-                .populate('customer','name')
-                .populate('sales','realName')
+            res = await this.ctx.model.ProductItem.find(searchParams)
                 .populate('createdBy','realName')
                 .sort(sortPramas).exec();
             count = res.length
           } else {
-            res = await this.ctx.model.Order.find({})
-                .populate('customer','name')
-                .populate('sales','realName')
+            res = await this.ctx.model.ProductItem.find({})
                 .populate('createdBy','realName')
                 .sort(sortPramas).exec();
-            count = await this.ctx.model.Order.count({}).exec()
+            count = await this.ctx.model.ProductItem.count({}).exec()
           }
         }
         const data = this.modifyAttrs(res);
@@ -136,7 +119,7 @@ class OrderService extends Service{
      * @param {[string]} payload 批量删除订单
      */
     async removes(payload){
-        return this.ctx.model.Order.remove({ _id: { $in: payload } })
+        return this.ctx.model.ProductItem.remove({ _id: { $in: payload } })
 
     }
 
@@ -145,19 +128,16 @@ class OrderService extends Service{
      * @param {string} id 
      */
     async find(id){
-        return this.ctx.model.Order.findById(id)
-            .populate('customer','name')
-            .populate('sales','realName')
-            .populate('createdBy','realName');
+        return this.ctx.model.ProductItem.findById(id).populate('createdBy','realName');
     }
 
     /**
      * 修改订单数据
-     * @param {[Order]|Order} data 整理订单数据
+     * @param {[ProductItem]|ProductItem} data 整理订单数据
      */
     modifyAttrs(data){
         return data;
     }
 };
 
-module.exports = OrderService;
+module.exports = ProductItemService;

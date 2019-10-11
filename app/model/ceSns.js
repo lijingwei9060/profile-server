@@ -13,6 +13,6 @@ module.exports = app => {
         createdAt: { type: Date, default: Date.now, description: '创建时间' },
         createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         cloud: { type: mongoose.Schema.Types.ObjectId, ref: 'Cloud' },
-    });
+    }, {versionKey: false});
     return mongoose.model('SNS', SNSSchema);
 }

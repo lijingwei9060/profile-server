@@ -17,7 +17,7 @@ module.exports = app => {
         customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
         createBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         status: { type: Boolean, default: true, description: 'false表示不可用' },
-    }) ;
+    }, {versionKey: false}) ;
 
     return mongoose.model('Cloud', CloudSchema);
 }

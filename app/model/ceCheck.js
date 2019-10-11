@@ -11,7 +11,7 @@ module.exports = app => {
         createdAt: { type: Date, default: Date.now },
         createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         cloud: { type: mongoose.Schema.Types.ObjectId, ref: 'Cloud' },
-    });
+    }, {versionKey: false});
 
     return mongoose.model('Check', CheckSchema);
 }

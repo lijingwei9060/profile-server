@@ -54,4 +54,19 @@ module.exports = app => {
   router.get('/api/order',  app.jwt, controller.order.index)
   router.delete('/api/order',app.jwt,  controller.order.removes)
 
+  // product
+  router.post('/api/product',  app.jwt, controller.product.create)
+  router.delete('/api/product/:id',  app.jwt, controller.product.destroy)
+  router.put('/api/product/:id',  app.jwt, controller.product.update)
+  router.get('/api/product/:id',  app.jwt, controller.product.show)
+  router.get('/api/product',  app.jwt, controller.product.index)
+  router.delete('/api/product',app.jwt,  controller.product.removes)
+  
+  // productItem
+  router.post('/api/productItem',  app.jwt, controller.productItem.create)
+  router.delete('/api/productItem/:id',  app.jwt, controller.productItem.destroy)
+  router.put('/api/productItem/:id',  app.jwt, controller.productItem.update)
+  router.get('/api/productItem/:id',  app.jwt, controller.productItem.show)
+  router.get('/api/productItem',  app.jwt, controller.productItem.index)
+  router.delete('/api/productItem',app.jwt,  controller.productItem.removes)
 };

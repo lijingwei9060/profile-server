@@ -11,6 +11,6 @@ module.exports = app =>{
         dep: { type: String, description: '部门' },
         customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer", required: true, allowEmpty: false, description: "客户" },
         createdAt: { type: Date, default: Date.now, description: '创建时间' },
-    })
+    }, {versionKey: false})
     return mongoose.model('Contact', ContactSchema);
 }

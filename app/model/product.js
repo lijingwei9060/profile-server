@@ -12,6 +12,6 @@ module.exports = app => {
         deliveryAt: { type: Date, description: '发放日期' },
         order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' ,description: '订单'},
         createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', description: '创建人' },
-    });
+    }, {versionKey: false});
     return mongoose.model('Product', ProductSchema);
 }
