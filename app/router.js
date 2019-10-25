@@ -68,5 +68,6 @@ module.exports = app => {
   router.put('/api/productItem/:id',  app.jwt, controller.productItem.update)
   router.get('/api/productItem/:id',  app.jwt, controller.productItem.show)
   router.get('/api/productItem',  app.jwt, controller.productItem.index)
+  router.post('/api/productItem/checkByCode',  app.jwt, controller.productItem.checkByCode)
   router.delete('/api/productItem',app.jwt,  controller.productItem.removes)
 };

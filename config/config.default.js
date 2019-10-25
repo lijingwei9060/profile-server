@@ -25,7 +25,7 @@ module.exports = appInfo => {
       csrf: {
         enable: false,
       },
-      domainWhiteList: ['http://127.0.0.1:8000','http://114.67.22.39','http://114.67.22.39:8000','https://114.67.22.39','https://114.67.22.39:8000']
+      domainWhiteList: ['http://localhost:8000','http://127.0.0.1:8000','http://114.67.22.39','http://114.67.22.39:8000','https://114.67.22.39','https://114.67.22.39:8000']
       
     },
     cors: {

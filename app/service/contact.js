@@ -20,7 +20,7 @@ class CustomerService extends Service{
 
     async update(_id, payload){
         const { ctx, service } = this;
-        const contact = await service.contact.find(id);
+        const contact = await service.contact.find(_id);
         if( !contact){
             ctx.throw(404, 'contact not found');
         }
@@ -71,18 +71,18 @@ class CustomerService extends Service{
 
         if(isPaging) {
           if(Object.keys(searchParams).length > 0) {
-            res = await this.ctx.model.Contact.find(searchParams).skip(skip).limit(Number(pageSize)).sort(sortPramas).exec()
+            res = await this.ctx.model.Contact.find(searchParams).populate('customer','name').skip(skip).limit(Number(pageSize)).sort(sortPramas).exec()
             count = res.length
           } else {
-            res = await this.ctx.model.Contact.find({}).skip(skip).limit(Number(pageSize)).sort(sortPramas).exec()
+            res = await this.ctx.model.Contact.find({}).populate('customer','name').skip(skip).limit(Number(pageSize)).sort(sortPramas).exec()
             count = await this.ctx.model.Contact.count({}).exec()
           }
         } else {
           if(Object.keys(searchParams).length > 0) {
-            res = await this.ctx.model.Contact.find(searchParams).sort(sortPramas).exec()
+            res = await this.ctx.model.Contact.find(searchParams).populate('customer','name').sort(sortPramas).exec()
             count = res.length
           } else {
-            res = await this.ctx.model.Contact.find({}).sort(sortPramas).exec()
+            res = await this.ctx.model.Contact.find({}).populate('customer','name').sort(sortPramas).exec()
             count = await this.ctx.model.Contact.count({}).exec()
           }
         }
@@ -95,32 +95,15 @@ class CustomerService extends Service{
     }
 
     async find(id){
-        return this.ctx.model.Contact.findById(id)
+        return this.ctx.model.Contact.findById(id).populate('customer','name');
     }
 
     async findByIdAndUpdate(id, values){
-        return this.ctx.model.Contact.findByIdAndUpdate(id, values, {new: true})
+        return this.ctx.model.Contact.findByIdAndUpdate(id, values, {new: true}).populate('customer','name');
     }
 
     modifyAttrs(data){
-        if ( Object.prototype.toString.call(data) === '[object Array]' ){
-             let res = data.map((e,i) => {
-                const jo = Object.assign({}, e._doc)
-                //jo.createdAt = this.ctx.helper.formatTime(e.createdAt)
-                jo.id = e._id;
-                delete jo._id;
-                delete jo.__v;
-                return jo;
-             })
-             return res;
-        }else{
-             let res = Object.assign({}, data._doc);
-             res.id = data._id;
-             delete res._id;
-             delete res.__v;
-
-             return res;
-        }
+        return data;
      }
 }
 

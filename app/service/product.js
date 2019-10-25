@@ -59,7 +59,7 @@ class ProductService extends Service{
      * @param {*} payload
      */
     async index(payload){
-        const { currentPage = 1, pageSize = 10, isPaging, search, customer, sorter } = payload;
+        const { currentPage = 1, pageSize = 10, isPaging, search, order, sorter } = payload;
         let res = []
         let count = 0
         let skip = ((Number(currentPage)) - 1) * Number(pageSize || 10)
@@ -69,7 +69,9 @@ class ProductService extends Service{
         if (search) {
             searchParams['name'] = { $regex: search };
         }
-  
+        if (order) {
+            searchParams['order'] = order;
+        }
         const sortPramas = {};
         if (sorter){
             const s = sorter.split('_');

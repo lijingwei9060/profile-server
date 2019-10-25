@@ -8,7 +8,7 @@ class CustomerService extends Service{
         const _id = ctx.state.user.data._id;
         payload.createdBy = _id;
         const doc = await ctx.model.Customer.create(payload);
-        const data = await doc.populate('createdBy').execPopulate();
+        const data = await doc.populate('createdBy', 'realName').execPopulate();
         return service.customer.modifyAttrs(data);
     }
     
@@ -39,33 +39,63 @@ class CustomerService extends Service{
         if(!customer){
             this.ctx.throw(404, 'customer not found')
         }
-        const res = await this.ctx.model.Customer.findById(_id).populate('createdBy');
-        return this.ctx.service.customer.modifyAttrs(res);
+        return this.ctx.service.customer.modifyAttrs(customer);
     }
 
     async index(payload){
-        const { currentPage = 1, pageSize = 10, isPaging, search } = payload
+        const { currentPage = 1, pageSize = 10, isPaging, search, sorter } = payload;
         let res = []
         let count = 0
         let skip = ((Number(currentPage)) - 1) * Number(pageSize || 10)
-        if(isPaging) {
-          if(search) {
-            res = await this.ctx.model.Customer.find({name: { $regex: search } }).populate('createdBy').skip(skip).limit(Number(pageSize)).sort({ createdAt: -1 }).exec()
+
+        //构建搜索参数
+        const searchParams = {};
+        if (search) {
+            searchParams['name'] = { $regex: search };
+        }
+
+        const sortPramas = {};
+        if (sorter){
+            const s = sorter.split('_');
+            if (s[1] === 'descend'){
+                const ss = {};
+                ss[s[0]] = -1;
+                sortPramas[s[0]] = -1;
+            }else{
+                const ss = {};
+                ss[s[0]] = 1;
+                sortPramas[s[0]] = 1;
+            }
+        }else{
+            sortPramas['createdAt'] =  -1 ;
+        }
+
+         if(isPaging) {
+          if(Object.keys(searchParams).length > 0) {
+            res = await this.ctx.model.Customer.find(searchParams)
+                .populate('createdBy','realName')
+                .skip(skip).limit(Number(pageSize)).sort(sortPramas).exec();
             count = res.length
           } else {
-            res = await this.ctx.model.Customer.find({}).populate('createdBy').skip(skip).limit(Number(pageSize)).sort({ createdAt: -1 }).exec()
+            res = await this.ctx.model.Customer.find({})
+                .populate('createdBy','realName')
+                .skip(skip).limit(Number(pageSize)).sort(sortPramas).exec();
             count = await this.ctx.model.Customer.count({}).exec()
           }
         } else {
-          if(search) {
-            res = await this.ctx.model.Customer.find({name: { $regex: search } }).populate('createdBy').sort({ createdAt: -1 }).exec()
+          if(Object.keys(searchParams).length > 0) {
+            res = await this.ctx.model.Customer.find(searchParams)
+                .populate('createdBy','realName')
+                .sort(sortPramas).exec();
             count = res.length
           } else {
-            res = await this.ctx.model.Customer.find({}).populate('createdBy').sort({ createdAt: -1 }).exec()
+            res = await this.ctx.model.Customer.find({})
+                .populate('createdBy','realName')
+                .sort(sortPramas).exec();
             count = await this.ctx.model.Customer.count({}).exec()
           }
         }
-        const data = this.service.customer.modifyAttrs(res);
+        const data = this.modifyAttrs(res);
         return { count: count, list: data, pageSize: Number(pageSize), currentPage: Number(currentPage) }
     }
 
@@ -74,50 +104,15 @@ class CustomerService extends Service{
     }
 
     async find(id){
-        return this.ctx.model.Customer.findById(id)
+        return this.ctx.model.Customer.findById(id).populate('createdBy', 'realName');
     }
 
     async findByIdAndUpdate(id, values){
-        return this.ctx.model.Customer.findByIdAndUpdate(id, values).populate('createdBy');
+        return this.ctx.model.Customer.findByIdAndUpdate(id, values, {new: true}).populate('createdBy', 'realName');
     }
 
     modifyAttrs(data){
-        if ( Object.prototype.toString.call(data) === '[object Array]' ){
-             let res = data.map((e,i) => {
-                 const jo = Object.assign({}, e._doc)
-                 //jo.createdAt = this.ctx.helper.formatTime(e.createdAt)
-                 jo.id = e._id;
-                 delete jo._id;
-                 delete jo.__v;
-
-                // 替换createdBy
-                // if (jo.createdBy ){
-                //     let createdBy  = Object.assign({}, e._doc.createdBy._doc);
-                //     createdBy.id = createdBy._id;
-                //     delete createdBy._id;
-                //     delete createdBy.__v;
-                //     jo["createdBy"] = createdBy;
-                // }
-
-                return jo;
-             })
-             return res;
-        }else{
-             let res = Object.assign({}, data._doc);
-             res.id = data._id;
-             delete res._id;
-             delete res.__v;
-
-             // 替换createdBy
-             if (res["createdBy"]){
-                let createdBy  = Object.assign({}, data._doc.createdBy._doc);
-                createdBy.id = createdBy._id;
-                delete createdBy._id;
-                delete createdBy.__v;
-                res["createdBy"] = createdBy;
-             }
-             return res;
-        }
+        return data;
      }
 }
 

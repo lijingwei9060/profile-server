@@ -16,6 +16,20 @@ class ProductItemController extends CrudController{
         };
         this.serviceName = 'productItem';
     }
+
+    async checkByCode(){
+        const { ctx, service, serviceName} = this;
+        // 如果设置了createRule
+        const { code } = ctx.request.body;
+        try{
+            const res = await service[serviceName].checkByCode(code);
+            ctx.helper.success({ctx, res});
+        }catch(err){
+            //可能的错误：
+            ctx.helper.failure({ctx, code:err.status, msg:err});
+        }
+    }
+    
 }
 
 module.exports = ProductItemController;

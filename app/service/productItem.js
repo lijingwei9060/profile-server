@@ -10,7 +10,7 @@ class ProductItemService extends Service{
         const _id = this.ctx.state.user.data._id;
         payload.createdBy = _id;
         let res = await this.ctx.model.ProductItem.create(payload);
-        let data  = await res.populate('createdBy').execPopulate();
+        let data  = await res.populate('createdBy','realName').execPopulate();
         return this.modifyAttrs(data);
     }
 
@@ -37,7 +37,7 @@ class ProductItemService extends Service{
             this.ctx.throw(404, 'productItem not found')
         }
         let data = await this.ctx.model.ProductItem.findByIdAndUpdate(_id, payload, {new: true});
-        const ret = await data.populate('createdBy').execPopulate();
+        const ret = await data.populate('createdBy', 'realName').execPopulate();
         return this.modifyAttrs(ret);
     }
 
@@ -58,7 +58,7 @@ class ProductItemService extends Service{
      * @param {*} payload
      */
     async index(payload){
-        const { currentPage = 1, pageSize = 10, isPaging, search, customer, sorter } = payload;
+        const { currentPage = 1, pageSize = 10, isPaging, search, sorter } = payload;
         let res = []
         let count = 0
         let skip = ((Number(currentPage)) - 1) * Number(pageSize || 10)
@@ -131,6 +131,16 @@ class ProductItemService extends Service{
         return this.ctx.model.ProductItem.findById(id).populate('createdBy','realName');
     }
 
+
+    /**
+     *
+     * 根据code查询是否存在相同的product
+     * @param {string} code
+     * @memberof ProductItemService
+     */
+    async checkByCode(code){
+        return this.ctx.model.ProductItem.find({code: code}).populate('createdBy','realName');
+    }
     /**
      * 修改订单数据
      * @param {[ProductItem]|ProductItem} data 整理订单数据
